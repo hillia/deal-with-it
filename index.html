@@ -1,0 +1,50 @@
+<!--
+  GIF Parallaxifier
+  Converts a gif to a parallax-scrolling webpage that animates on scroll.
+  Won't work locally unless you run Chrome with -allow-file-access-from-files flag.
+  On Mac OS X command line: open -a 'Google Chrome' --args -allow-file-access-from-files
+-->
+
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.js"></script>
+<script src="libgif.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/skrollr/0.6.22/skrollr.js"></script>
+<script type="text/javascript">
+  $(function() {
+    $gif = $('#the-gif');
+    gif = new SuperGif({
+      gif: $gif[0]
+    });
+
+    gif.load(function() {
+      s = skrollr.init({
+        smoothScrolling: false
+      });
+      gif.get_canvas().style.opacity = 1;
+
+      s.on('render', function(data) {
+        var nextFrame = Math.round(data.curTop / data.maxTop * gif.get_length());
+        nextFrame = Math.max(nextFrame, 0);
+        nextFrame = Math.min(nextFrame, gif.get_length() - 1);
+
+        gif.move_to(nextFrame);
+
+        if (nextFrame == gif.get_length() - 1) {
+          s.destroy();
+        }
+      });
+    });
+
+  });
+</script>
+
+<style>
+  body { background-color: #222; }
+  #scroll-test { position: fixed; height:100%; width:100%; text-align: center; }
+  #loading { position: absolute; margin-left: -64px; z-index: -1;}
+  canvas { opacity: 0; height: 100%; }
+</style>
+
+<div id="scroll-test" class="skrollable skrollable skrollable-between" data-0="" data-10000="">
+  <img id="loading" src="loading-spinner.gif"/>
+  <img id="the-gif" src="deal-with-it.gif" width="100%" height="100%" rel:auto_play="0"/>
+</div>
